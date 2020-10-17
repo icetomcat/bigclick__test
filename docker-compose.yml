@@ -1,0 +1,79 @@
+version: '3.7'
+
+services:
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+  adminer:
+    image: adminer
+    environment:
+      - VIRTUAL_HOST=adminer.localhost
+
+  db:
+    image: postgres:12-alpine
+    environment:
+      - POSTGRES_DB=api
+      - POSTGRES_PASSWORD=user
+      - POSTGRES_USER=user
+    volumes:
+      # - db-data:/var/lib/postgresql/data:rw
+      - ./database/data:/var/lib/postgresql/data:rw
+    ports:
+      - target: 5432
+        published: 5432
+        protocol: tcp
+
+  client:
+    build:
+      context: ./client
+      target: 'develop-stage'
+    environment:
+      - UPSTREAM=http://api.localhost
+      - VIRTUAL_HOST=client.localhost
+    ports:
+      - "8080:80"
+    volumes:
+      - ./client:/app:rw,cached
+      
+  php:
+    build:
+      context: ./api
+      target: api_php
+      args:
+        - UID
+        - GID
+    restart: on-failure
+    environment:
+      - APP_NAME=api
+      - APP_KEY=base64:4rldiZSlj+mi3SOCYUFcKReCU0jPl+yXdWRnJAtj4S4=
+      - APP_DEBUG=true
+      - APP_URL=http://api.localhost
+      - DB_CONNECTION=pgsql
+      - DATABASE_URL=pgsql://user:user@db:5432/api
+    healthcheck:
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      - db
+    volumes:
+      - ./api:/var/www:rw,cached
+      
+  api:
+    build:
+      context: ./api
+      target: api_nginx
+    environment:
+      - VIRTUAL_HOST=api.localhost
+    ports:
+      - "8081:80"
+    depends_on:
+      - php
+    volumes:
+      - ./api/public:/var/www/public:ro
