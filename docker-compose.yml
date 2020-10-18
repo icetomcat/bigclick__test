@@ -51,6 +51,7 @@ services:
     environment:
       - APP_NAME=api
       - APP_KEY=base64:4rldiZSlj+mi3SOCYUFcKReCU0jPl+yXdWRnJAtj4S4=
+      - APP_ENV=development
       - APP_DEBUG=true
       - APP_URL=http://api.localhost
       - DB_CONNECTION=pgsql

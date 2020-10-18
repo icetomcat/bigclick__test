@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::get('nested-set', 'App\Http\Controllers\Api\NestedSetController@getCollection');
+Route::get('nested-set/{id}', 'App\Http\Controllers\Api\NestedSetController@getItem');
+Route::post('nested-set', 'App\Http\Controllers\Api\NestedSetController@createItem');
+Route::put('nested-set/{id}', 'App\Http\Controllers\Api\NestedSetController@updateItem');
+Route::delete('nested-set/{id}','App\Http\Controllers\Api\NestedSetController@deleteItem');
