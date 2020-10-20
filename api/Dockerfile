@@ -103,8 +103,8 @@ HEALTHCHECK --interval=10s --timeout=3s --retries=3 CMD ["docker-healthcheck"]
 
 #ENTRYPOINT ["docker-entrypoint"]
 
-#COPY docker/php/wait-for-it.sh /usr/bin/wait-for-it
-#CMD wait-for-it $WAIT_FOR_IT -- bin/console doctrine:migrations:migrate --no-interaction
+COPY docker/php/wait-for-it.sh /usr/bin/wait-for-it
+CMD wait-for-it $WAIT_FOR_IT -- php artisan migrate
 
 # Expose port 9000 and start php-fpm server
 EXPOSE 9000
