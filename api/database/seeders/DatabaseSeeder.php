@@ -39,7 +39,8 @@ class DatabaseSeeder extends Seeder
 
         while (count($items) > 1) {
             $children = array_splice($items, 0, min(random_int(10, 20), count($items) - 1));
-            $items[random_int(0, count($items) - 1)]['children'] = array_merge($items[random_int(0, count($items) - 1)]['children'], $children);
+            $item = &$items[random_int(0, count($items) - 1)];
+            $item['children'] = array_merge($item['children'], $children);
         }
         $items = $items[0];
 
