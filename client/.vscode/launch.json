@@ -1,0 +1,47 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "chromium",
+      "url": "http://client.localhost/",
+      "webRoot": "${workspaceFolder}/src",
+      "breakOnLoad": true,
+      "sourceMapPathOverrides": {
+        "webpack:///./src/*": "${webRoot}/*"
+      },
+      "runtimeExecutable": "/usr/bin/chromium",
+      "runtimeArgs": [
+        "--new-window",
+        "-user-data-dir=/${workspaceFolder}/.dev_profile",
+        "--remote-debugging-port=9222",
+        "--disable-background-networking"
+      ]
+    },
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "chrome",
+      "url": "http://client.localhost/",
+      "webRoot": "${workspaceFolder}/src",
+      "breakOnLoad": true,
+      "sourceMapPathOverrides": {
+        "webpack:///./src/*": "${webRoot}/*"
+      }
+    },
+    {
+      "type": "firefox",
+      "request": "launch",
+      "name": "firefox",
+      "url": "http://client.localhost/",
+      "webRoot": "${workspaceFolder}/src",
+      "pathMappings": [
+        {
+          "url": "webpack:///src/",
+          "path": "${webRoot}/"
+        }
+      ]
+    }
+  ]
+}

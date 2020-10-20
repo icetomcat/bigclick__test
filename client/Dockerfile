@@ -13,8 +13,6 @@ RUN set -eux; \
 
 COPY . ./
 
-VOLUME /app/node_modules
-
 CMD ["quasar", "dev"]
 
 # build stage
