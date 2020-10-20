@@ -12,16 +12,15 @@
       </div>
       <span class="label">{{ root.title }}</span>
     </div>
-    <div v-if="expanded" class="node-tree__children" v-bind:class="{'node-tree__children_expanded': expanded, 'node-tree__children_folded': !expanded}">
+    <div v-if="expanded || this.root.children.length" class="node-tree__children" v-bind:class="{'node-tree__children_expanded': expanded, 'node-tree__children_folded': !expanded}">
       <node v-for="child of rootChildren" :root="child" :key="child.id" :droppable="!drag && droppable"></node>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Dictionary } from 'lodash'
 import NestedSet from 'src/store/models/NestedSet'
-import { Vue, Component, Prop, Inject, Watch } from 'vue-property-decorator'
+import { Vue, Component, Prop } from 'vue-property-decorator'
 
 @Component({
   name: 'node'
@@ -37,17 +36,15 @@ export default class TreeNode extends Vue {
   }
 
   get rootChildren () {
+    if (this.root.children.length) {
+      return this.root.children
+    }
     return this.root.loadChildren()
   }
 
   mounted () {
     this.expanded = this.root.expanded ?? false
   }
-
-  // @Watch('root', { deep: true })
-  // onRootChanged (val: NestedSet, oldVal: NestedSet) {
-  //   this.expanded = val.expanded === oldVal.expanded ? this.expanded : !!val.expanded
-  // }
 
   onDragStart (event: DragEvent) {
     event.stopPropagation()
@@ -68,23 +65,50 @@ export default class TreeNode extends Vue {
     event.preventDefault()
   }
 
-  onDrop (event: DragEvent) {
+  async onDrop (event: DragEvent) {
     event.stopPropagation()
     if (!this.droppable) {
       return
     }
 
-    NestedSet.update({
-      where: event.dataTransfer && +event.dataTransfer.getData('itemId') || undefined, 
-      data: {
+    const itemId = event.dataTransfer && +event.dataTransfer.getData('itemId')
+
+    if (itemId === this.root.id || !itemId) {
+      return
+    }
+
+    const item = NestedSet.getById(itemId)
+    try {
+      await NestedSet.api().put(`nested-set/${itemId}`, {
+        ...item,
         parent_id: this.root.id
+      })
+      this.$q.notify({
+        type: 'positive',
+        message: 'Done',
+        timeout: 3000
+      })
+    } catch (e) {
+      let message = ''
+      if (e instanceof Error) {
+        message = e.message
       }
-    })
+      this.$q.notify({
+        type: 'negative',
+        message: message,
+        timeout: 3000
+      })
+    }
+    this.root.expanded = true
   }
 
   toggle () {
     this.expanded = !this.expanded
     this.root.expanded = this.expanded
+
+    if (this.root.expanded && !this.root.children.length) {
+      this.root.loadChildren()
+    }
   }
 }
 </script>
