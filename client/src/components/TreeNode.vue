@@ -1,16 +1,21 @@
 <template>
   <div draggable v-on:drop="onDrop" @dragover.prevent @dragstart="onDragStart" @dragend="onDragEnd" @dragenter="onDragEnter" @dragleave="onDragLeave">
-    <div class="node-tree" v-on:click="toggle" v-bind:class="{'node-tree_pointer': hasChildren}">
-      <div class="node-tree__expander">
-        <div v-if="hasChildren" class="node-tree__expander-icon">
-          <i v-if="expanded" class="far fa-folder-open"></i>
-          <i v-else class="far fa-folder"></i>
+    <div class="node-tree__item">
+      <div class="node-tree" v-on:click="toggle" v-bind:class="{'node-tree_pointer': hasChildren}">
+        <div class="node-tree__expander">
+          <div v-if="hasChildren" class="node-tree__expander-icon">
+            <i v-if="expanded" class="far fa-folder-open"></i>
+            <i v-else class="far fa-folder"></i>
+          </div>
+          <div v-else>
+            <i class="fas fa-file"></i>
+          </div>
         </div>
-        <div v-else>
-          <i class="fas fa-file"></i>
-        </div>
+        <span class="label">{{ root.title }}</span>
       </div>
-      <span class="label">{{ root.title }}</span>
+      <div class="node-tree__delete-btn" @click="remove">
+        <i class="fas fa-trash"></i>
+      </div>
     </div>
     <div class="node-tree__children" :class="{'node-tree__children_expanded': expanded, 'node-tree__children_folded': !expanded}">
       <div v-if="root.children.length || expanded">
@@ -128,6 +133,32 @@ export default class TreeNode extends Vue {
       this.root.loadChildren()
     }
   }
+
+  async remove () {
+    try {
+      await NestedSet.api().delete(`nested-set/${this.root.id}`)
+      try {
+        await NestedSet.delete(this.root.id)
+      } catch {
+        window.location.reload()
+      }
+      this.$q.notify({
+        type: 'positive',
+        message: 'Done',
+        timeout: 3000
+      })
+    } catch (e) {
+      let message = ''
+      if (e instanceof Error) {
+        message = e.message
+      }
+      this.$q.notify({
+        type: 'negative',
+        message: message,
+        timeout: 3000
+      })
+    }
+  }
 }
 </script>
 
@@ -135,6 +166,23 @@ export default class TreeNode extends Vue {
 .node-tree {
   padding: 0 4px;
   cursor: default;
+}
+
+.node-tree__item {
+  display: flex;
+  justify-content: space-between;
+}
+
+.node-tree__delete-btn {
+  cursor: pointer;
+  border-radius: 4px;
+  transition: 0.5s background-color;
+  width: 26px;
+  padding: 2px 6px;
+  text-align: center;
+  &:hover {
+    background-color: #dba8a8;
+  }
 }
 
 .node-tree__dragover {

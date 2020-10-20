@@ -28,4 +28,13 @@ class NestedSetController extends Controller
 
         return response($item->toJson(JSON_PRETTY_PRINT), 200);
     }
+
+    public function deleteItem(Request $request, $id)
+    {
+        /** @var $item Model */
+        $item = NestedSet::findOrFail($id);
+        $item->delete();
+
+        return response($id,200);
+    }
 }
