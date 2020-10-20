@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 class NestedSetController extends Controller
 {
     public function getCollection () {
-        $nested_set = NestedSet::get()->toJson(JSON_PRETTY_PRINT);
+        $nested_set = NestedSet::withDepth()->get()->toJson(JSON_PRETTY_PRINT);
         return response($nested_set, 200);
     }
 }
