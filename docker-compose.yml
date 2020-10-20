@@ -33,7 +33,7 @@ services:
       context: ./client
       target: 'develop-stage'
     environment:
-      - UPSTREAM=http://api.localhost
+      - UPSTREAM=http://api.localhost/api
       - VIRTUAL_HOST=client.localhost
     ports:
       - "8080:80"
