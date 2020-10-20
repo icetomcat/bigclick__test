@@ -16,8 +16,8 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Provide, Model } from 'vue-property-decorator'
-import { Dictionary, includes, keyBy, uniq, uniqBy, uniqWith } from 'lodash'
+import { Vue, Component } from 'vue-property-decorator'
+import { keyBy, uniqBy } from 'lodash'
 import TreeNode from 'src/components/TreeNode.vue'
 import NestedSet from 'src/store/models/NestedSet'
 import { Collection } from '@vuex-orm/core'
@@ -29,12 +29,13 @@ import { Collection } from '@vuex-orm/core'
 })
 export default class PageIndex extends Vue {
   public filter: string | null = ''
-  public found: number = 0
+  public found = 0
 
-  public get root() {
+  public get root () {
     if (this.filter) {
       var filtered = NestedSet.query().where('title', this.filter).with('children.children').all()
       const parentsCache: Record<number, NestedSet | null> = keyBy(filtered, 'id')
+      // eslint-disable-next-line camelcase
       while (filtered?.[0]?.parent_id || filtered.length > 1) {
         const parents: Collection<NestedSet> = []
         for (const item of filtered) {
@@ -67,7 +68,7 @@ export default class PageIndex extends Vue {
     }
     return root
   }
-  
+
   async mounted () {
     await NestedSet.api().get('nested-set')
   }

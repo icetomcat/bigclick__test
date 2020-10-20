@@ -12,24 +12,31 @@
       </div>
       <span class="label">{{ root.title }}</span>
     </div>
-    <div v-if="expanded || this.root.children.length" class="node-tree__children" v-bind:class="{'node-tree__children_expanded': expanded, 'node-tree__children_folded': !expanded}">
-      <node v-for="child of rootChildren" :root="child" :key="child.id" :droppable="!drag && droppable"></node>
+    <div class="node-tree__children" :class="{'node-tree__children_expanded': expanded, 'node-tree__children_folded': !expanded}">
+      <div v-if="root.children.length || expanded">
+        <node v-for="child of rootChildren" :root="child" :key="child.id" :droppable="!drag && droppable"></node>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import NestedSet from 'src/store/models/NestedSet'
-import { Vue, Component, Prop } from 'vue-property-decorator'
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 
 @Component({
   name: 'node'
 })
 export default class TreeNode extends Vue {
-  @Prop({ type: Object, required: true }) root!: NestedSet
-  @Prop({ type: Boolean, default: true }) droppable!: boolean
-  expanded = false
+  @Prop({ type: Object, required: true }) readonly root!: NestedSet
+  @Prop({ type: Boolean, default: true }) readonly droppable!: boolean
+  _expanded = false
   drag = false
+
+  @Watch('root', { deep: true })
+  onRootChanged (root: NestedSet, old: NestedSet) {
+    this.expanded = root.expanded !== old.expanded ? root.expanded : this.expanded
+  }
 
   get hasChildren () {
     return this.root.hasChildren()
@@ -40,6 +47,14 @@ export default class TreeNode extends Vue {
       return this.root.children
     }
     return this.root.loadChildren()
+  }
+
+  get expanded () {
+    return this.$data._expanded as boolean
+  }
+
+  set expanded (value: boolean) {
+    this.$data._expanded = value
   }
 
   mounted () {
@@ -78,6 +93,11 @@ export default class TreeNode extends Vue {
     }
 
     const item = NestedSet.getById(itemId)
+
+    if (item && item.parent_id === this.root.id) {
+      return
+    }
+
     try {
       await NestedSet.api().put(`nested-set/${itemId}`, {
         ...item,
@@ -99,14 +119,12 @@ export default class TreeNode extends Vue {
         timeout: 3000
       })
     }
-    this.root.expanded = true
+    this.expanded = true
   }
 
   toggle () {
     this.expanded = !this.expanded
-    this.root.expanded = this.expanded
-
-    if (this.root.expanded && !this.root.children.length) {
+    if (this.expanded && !this.root.children.length) {
       this.root.loadChildren()
     }
   }
