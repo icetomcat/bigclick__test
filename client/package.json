@@ -11,8 +11,11 @@
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",
+    "@vuex-orm/core": "^0.36.3",
+    "@vuex-orm/plugin-axios": "^0.9.3",
     "axios": "^0.18.1",
     "core-js": "^3.6.5",
+    "lodash": "^4.17.20",
     "quasar": "^1.0.0",
     "vue-class-component": "^7.2.2",
     "vue-i18n": "^8.0.0",
@@ -20,6 +23,7 @@
   },
   "devDependencies": {
     "@quasar/app": "^2.0.0",
+    "@types/lodash": "^4.14.162",
     "@types/node": "^10.17.15",
     "@typescript-eslint/eslint-plugin": "^3.3.0",
     "@typescript-eslint/parser": "^3.3.0",
@@ -31,7 +35,8 @@
     "eslint-plugin-node": "^11.0.0",
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-standard": "^4.0.0",
-    "eslint-plugin-vue": "^6.1.2"
+    "eslint-plugin-vue": "^6.1.2",
+    "vuex-orm-decorators": "^1.2.5"
   },
   "browserslist": [
     "ie >= 11",
